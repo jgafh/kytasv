@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYTA | High-End Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kyta: { base: '#F9F8F6', dark: '#1A1A1A', gold: '#D4AF37' }
+                    },
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'], serif: ['Playfair Display', 'serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #F9F8F6; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Ocultar spinner numérico en inputs */
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    </style>
+</head>
+<body class="bg-kyta-base text-kyta-dark font-sans antialiased">
+
+    <div id="toast" class="fixed top-24 right-6 bg-red-500 text-white px-6 py-3 shadow-2xl transform translate-x-[150%] transition-transform duration-300 z-[100] text-sm font-bold tracking-wider uppercase">
+        Mensaje
+    </div>
+
+    <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-transparent py-4 text-white">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
+            <a href="#" onclick="goHome()" class="flex items-center gap-3 z-50">
+                <svg class="w-8 h-8 text-kyta-gold" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="50" cy="50" r="20" fill="currentColor"/>
+                    <path d="M50 10 L50 20 M50 80 L50 90 M10 50 L20 50 M80 50 L90 50 M21.7 21.7 L28.8 28.8 M71.2 71.2 L78.3 78.3 M21.7 78.3 L28.8 71.2 M71.2 28.8 L78.3 21.7" stroke-width="3"/>
+                </svg>
+                <span class="font-serif font-bold text-xl tracking-widest uppercase">KYTA</span>
+            </a>
+            
+            <div class="flex items-center gap-5">
+                <button onclick="toggleCart()" class="relative p-2 hover:text-kyta-gold transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-kyta-gold text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="view-home" class="block">
+        <section class="relative h-screen w-full overflow-hidden bg-kyta-dark" id="hero-slider">
+            </section>
+
+        <section class="py-24 bg-white border-t border-gray-100 min-h-screen">
+            <div class="max-w-7xl mx-auto px-6 md:px-12">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-serif mb-4">La Colección</h2>
+                        <div class="w-16 h-0.5 bg-kyta-gold"></div>
+                    </div>
+                    <div class="flex flex-wrap gap-4" id="filters">
+                        <button class="filter-btn active text-sm font-bold tracking-wide border-b-2 border-kyta-dark pb-1 text-kyta-dark" onclick="filterData('all')">Todo</button>
+                        <button class="filter-btn text-sm font-medium tracking-wide text-gray-400 hover:text-kyta-dark border-b-2 border-transparent pb-1 transition-all" onclick="filterData('perfume')">Perfumes</button>
+                        <button class="filter-btn text-sm font-medium tracking-wide text-gray-400 hover:text-kyta-dark border-b-2 border-transparent pb-1 transition-all" onclick="filterData('activewear')">Activewear</button>
+                    </div>
+                </div>
+                <div id="grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+                    </div>
+            </div>
+        </section>
+    </main>
+
+    <main id="view-product" class="hidden pt-28 pb-24 bg-white min-h-screen fade-in">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <button onclick="goHome()" class="text-sm text-gray-500 hover:text-kyta-gold transition flex items-center gap-2 mb-8 font-medium tracking-wide uppercase">
+                &larr; Volver al catálogo
+            </button>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20" id="product-detail-container">
+                </div>
+        </div>
+    </main>
+
+    <footer class="bg-[#0A0A0A] text-white pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="border-t border-gray-200/20 pt-8 mt-12 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 gap-4">
+                <p>&copy; 2026 KYTA. Todos los derechos reservados.</p>
+                <div class="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+                    <span>Powered by <a href="https://gammasolutions.dev" target="_blank" class="text-blue-500 font-bold hover:underline transition-all">Soluciones GAMMA</a></span>
+                    <div class="flex items-center space-x-4">
+                        <a href="mailto:info@gammasolutions.dev" class="hover:text-blue-500 transition-colors" aria-label="Email">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg>
+                        </a>
+                        <a href="https://instagram.com/GAMMAsolutions.dev" target="_blank" class="hover:text-pink-500 transition-colors" aria-label="Instagram">
+                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849 1.498-3.227 1.691-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" clip-rule="evenodd" /></svg>
+                        </a>
+                        <a href="https://wa.me/50372076611" target="_blank" class="hover:text-green-500 transition-colors" aria-label="WhatsApp">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full md:w-[420px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[60] flex flex-col text-kyta-dark">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
+            <h3 class="font-serif text-2xl">Tu Bolsa</h3>
+            <button onclick="toggleCart()" class="text-gray-400 hover:text-black transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 bg-kyta-base/30">
+            </div>
+        <div class="p-6 border-t border-gray-100 bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <span class="font-bold text-gray-900 uppercase tracking-widest text-xs">Subtotal</span>
+                <span id="cart-total" class="font-serif text-2xl font-semibold">$0.00</span>
+            </div>
+            <button onclick="checkoutWhatsApp()" class="w-full h-14 bg-[#25D366] text-white font-bold uppercase tracking-widest text-sm hover:bg-[#128C7E] transition-colors flex items-center justify-center gap-2">
+                Checkout vía WhatsApp
+            </button>
+        </div>
+    </div>
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 z-[55]"></div>
+
+    <script>
+        // 1. BASE DE DATOS MOCKUP (Clean Architecture)
+        const db = {
+            slides: [
+                { img: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1920&q=80", title: "La Esencia del Lujo", sub: "Descubre las fragancias exclusivas de Dior.", badge: "Novedad" },
+                { img: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=1920&q=80", title: "Rendimiento y Estilo", sub: "Colección ALO Activewear para un performance superior.", badge: "Exclusivo" }
+            ],
+            products: [
+                {
+                    id: 1, name: "J'adore Eau de Parfum", brand: "Dior", category: "perfume", 
+                    price: 160.00, comparePrice: null, stock: 3,
+                    badge: { text: "BEST SELLER", color: "bg-kyta-dark" },
+                    img: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80",
+                    desc: "Un bouquet floral magnífico, un tributo a la pasión de Christian Dior por las flores. Una fragancia atemporal que captura la esencia de la feminidad absoluta.",
+                    variants: { label: "Tamaño", options: ["50ml", "100ml", "150ml (+ $40)"] }
+                },
+                {
+                    id: 2, name: "Airlift High-Waist Legging", brand: "ALO Yoga", category: "activewear", 
+                    price: 98.00, comparePrice: 128.00, stock: 15,
+                    badge: { text: "-23% OFF", color: "bg-red-600" },
+                    img: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=800&q=80",
+                    desc: "El tejido Airlift micro-performance te da una sensación de segunda piel que esculpe y suaviza. Ideal para entrenamientos intensos o para el estudio.",
+                    variants: { label: "Talla", options: ["XS", "S", "M", "L"] }
+                },
+                {
+                    id: 3, name: "Rouge Dior Lipstick", brand: "Dior", category: "makeup", 
+                    price: 45.00, comparePrice: null, stock: 2, // Stock bajo a propósito
+                    badge: { text: "POCO STOCK", color: "bg-orange-500" },
+                    img: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=800&q=80",
+                    desc: "Color vibrante y confort hasta por 16 horas. Enriquecido con extractos florales para el cuidado de los labios.",
+                    variants: { label: "Tono", options: ["999 Velvet", "100 Nude Look"] }
+                },
+                {
+                    id: 4, name: "Capture Totale Super Potent Serum", brand: "Dior", category: "perfume", 
+                    price: 95.00, comparePrice: null, stock: 10,
+                    badge: null,
+                    img: "https://images.unsplash.com/photo-1615397323861-c88f28c2ebaa?auto=format&fit=crop&w=800&q=80",
+                    desc: "El suero antienvejecimiento global que desafía las leyes del tiempo.",
+                    variants: { label: "Tamaño", options: ["30ml", "50ml"] }
+                }
+            ]
+        };
+
+        let cart = [];
+        let currentProductView = null; // Guarda qué producto estamos viendo en detalle
+
+        // 2. SMART NAVBAR LOGIC
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('glass', 'text-kyta-dark', 'shadow-sm');
+                nav.classList.remove('text-white', 'py-4');
+                nav.classList.add('py-2');
+            } else {
+                nav.classList.remove('glass', 'text-kyta-dark', 'shadow-sm', 'py-2');
+                nav.classList.add('text-white', 'py-4');
+            }
+        });
+
+        // 3. HERO SLIDER RENDER
+        function initSlider() {
+            const container = document.getElementById('hero-slider');
+            let html = '';
+            db.slides.forEach((slide, i) => {
+                html += `
+                <div class="absolute inset-0 transition-opacity duration-1000 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'} slide-item">
+                    <div class="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#2d2a26] to-[#0a0a0a] z-0"></div>
+                    <img src="${slide.img}" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay z-10" alt="Slide">
+                    <div class="absolute inset-0 flex flex-col justify-center items-center text-white z-20 text-center px-6">
+                        <p class="text-kyta-gold tracking-[0.2em] text-xs font-bold mb-4 uppercase">${slide.badge}</p>
+                        <h1 class="text-5xl md:text-7xl font-serif mb-6">${slide.title}</h1>
+                        <p class="text-lg md:text-xl font-light mb-10 max-w-xl">${slide.sub}</p>
+                        <button onclick="document.getElementById('grid-container').scrollIntoView({behavior:'smooth'})" class="bg-kyta-gold px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-white hover:text-kyta-dark transition">Explorar</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+
+            // Auto-play (simulado)
+            let current = 0;
+            const slides = document.querySelectorAll('.slide-item');
+            setInterval(() => {
+                slides[current].classList.remove('opacity-100', 'z-10');
+                slides[current].classList.add('opacity-0', 'z-0');
+                current = (current + 1) % slides.length;
+                slides[current].classList.remove('opacity-0', 'z-0');
+                slides[current].classList.add('opacity-100', 'z-10');
+            }, 5000);
+        }
+
+        // 4. RENDER CATÁLOGO (Grid)
+        function renderGrid(products) {
+            const grid = document.getElementById('grid-container');
+            if(products.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-10">No hay productos en esta categoría.</p>';
+                return;
+            }
+            
+            let html = '';
+            products.forEach(p => {
+                const badgeHtml = p.badge ? `<div class="absolute top-2 left-2 ${p.badge.color} text-white text-[9px] font-bold px-2 py-1 tracking-widest z-10">${p.badge.text}</div>` : '';
+                const priceHtml = p.comparePrice ? `<span class="text-gray-400 line-through text-xs mr-2">$${p.comparePrice.toFixed(2)}</span>$${p.price.toFixed(2)}` : `$${p.price.toFixed(2)}`;
+
+                html += `
+                <div class="group flex flex-col bg-white border border-gray-100 hover:border-kyta-gold/40 hover:shadow-xl transition-all duration-300 cursor-pointer" onclick="openProduct(${p.id})">
+                    <div class="relative aspect-[4/5] overflow-hidden bg-gray-50">
+                        ${badgeHtml}
+                        <img src="${p.img}" class="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-700">
+                    </div>
+                    <div class="p-4 flex flex-col flex-1 text-left">
+                        <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">${p.brand}</p>
+                        <h3 class="font-serif text-sm md:text-base text-kyta-dark leading-snug my-1 flex-1">${p.name}</h3>
+                        <p class="font-medium text-gray-900">${priceHtml}</p>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        function filterData(cat) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-kyta-dark', 'text-kyta-dark');
+                btn.classList.add('text-gray-400', 'border-transparent');
+            });
+            event.target.classList.add('active', 'border-kyta-dark', 'text-kyta-dark');
+            event.target.classList.remove('text-gray-400', 'border-transparent');
+
+            const filtered = cat === 'all' ? db.products : db.products.filter(p => p.category === cat);
+            renderGrid(filtered);
+        }
+
+        // 5. ENRUTADOR SIMULADO (SPA) - Abre detalle
+        function openProduct(id) {
+            const p = db.products.find(x => x.id === id);
+            currentProductView = p;
+            
+            // Ocultar Home, Mostrar Producto
+            document.getElementById('view-home').classList.replace('block', 'hidden');
+            document.getElementById('view-product').classList.replace('hidden', 'block');
+            window.scrollTo(0,0);
+
+            const badgeHtml = p.badge ? `<span class="inline-block ${p.badge.color} text-white text-[10px] font-bold px-2 py-1 tracking-widest mb-4">${p.badge.text}</span>` : '';
+            const priceHtml = p.comparePrice ? `<span class="text-gray-400 line-through text-lg mr-3">$${p.comparePrice.toFixed(2)}</span><span class="text-2xl font-bold text-red-600">$${p.price.toFixed(2)}</span>` : `<span class="text-2xl font-bold">$${p.price.toFixed(2)}</span>`;
+            
+            // Render de Variantes (Simulado)
+            let variantsHtml = '';
+            if(p.variants) {
+                let options = p.variants.options.map((opt, i) => `<option value="${opt}">${opt}</option>`).join('');
+                variantsHtml = `
+                    <div class="mb-6">
+                        <label class="text-xs uppercase tracking-widest font-bold text-gray-500 block mb-2">${p.variants.label}</label>
+                        <select id="variant-select" class="w-full h-12 border border-gray-200 px-4 focus:outline-none focus:border-kyta-gold bg-white text-sm">
+                            ${options}
+                        </select>
+                    </div>
+                `;
+            }
+
+            // Inyectar HTML
+            document.getElementById('product-detail-container').innerHTML = `
+                <div class="bg-gray-50 p-4 flex items-center justify-center">
+                    <img src="${p.img}" class="w-full h-auto object-cover mix-blend-multiply" alt="${p.name}">
+                </div>
+                <div class="flex flex-col justify-center">
+                    ${badgeHtml}
+                    <p class="text-xs uppercase tracking-widest font-bold text-gray-400 mb-1">${p.brand}</p>
+                    <h1 class="text-3xl md:text-5xl font-serif text-kyta-dark mb-4 leading-tight">${p.name}</h1>
+                    <div class="mb-6">${priceHtml}</div>
+                    
+                    <p class="text-gray-500 font-light text-sm leading-relaxed mb-8">${p.desc}</p>
+                    
+                    ${variantsHtml}
+
+                    <div class="flex gap-4 mb-4">
+                        <div class="w-24 border border-gray-200 flex items-center justify-center">
+                            <input type="number" id="qty-input" value="1" min="1" max="10" class="w-full text-center focus:outline-none text-lg">
+                        </div>
+                        <button onclick="addToCartLogic()" class="flex-1 bg-kyta-dark text-white font-bold uppercase tracking-widest text-sm hover:bg-kyta-gold transition-colors h-14 active:scale-95">
+                            Agregar a la bolsa
+                        </button>
+                    </div>
+                    
+                    <p class="text-[10px] text-gray-400 tracking-wider"><span class="font-bold text-green-600">✔</span> Stock disponible: ${p.stock} unidades</p>
+                </div>
+            `;
+        }
+
+        function goHome() {
+            document.getElementById('view-product').classList.replace('block', 'hidden');
+            document.getElementById('view-home').classList.replace('hidden', 'block');
+            currentProductView = null;
+        }
+
+        // 6. LÓGICA DE STOCK Y CARRITO
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.remove('translate-x-[150%]');
+            setTimeout(() => t.classList.add('translate-x-[150%]'), 3000);
+        }
+
+        function addToCartLogic() {
+            if(!currentProductView) return;
+            
+            const qty = parseInt(document.getElementById('qty-input').value);
+            const variantSel = document.getElementById('variant-select');
+            const variant = variantSel ? variantSel.value : 'Única';
+
+            // Validar Stock Real
+            // ¿Cuántos tengo en carrito de ESTE ID (sin importar la variante para no complicar el mock)?
+            const qtyInCart = cart.filter(c => c.id === currentProductView.id).reduce((sum, c) => sum + c.qty, 0);
+            
+            if(qty + qtyInCart > currentProductView.stock) {
+                showToast(`⚠️ Error: Solo quedan ${currentProductView.stock} en stock.`);
+                return;
+            }
+
+            // Agregado exitoso
+            const existing = cart.find(c => c.id === currentProductView.id && c.variant === variant);
+            if(existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({ ...currentProductView, qty: qty, variant: variant });
+            }
+
+            updateCartUI();
+            showToast("✅ Agregado a la bolsa");
+            toggleCart(true);
+        }
+
+        function updateCartUI() {
+            const itemsContainer = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const badge = document.getElementById('cart-badge');
+
+            let total = 0, count = 0;
+            itemsContainer.innerHTML = '';
+
+            if(cart.length === 0) {
+                itemsContainer.innerHTML = '<p class="text-center text-gray-400 mt-10 text-sm">Tu bolsa está vacía.</p>';
+                badge.classList.add('hidden');
+                totalEl.textContent = '$0.00';
+                return;
+            }
+
+            badge.classList.remove('hidden');
+            cart.forEach((item, index) => {
+                total += item.price * item.qty;
+                count += item.qty;
+                itemsContainer.innerHTML += `
+                    <div class="flex gap-4 bg-white p-3 border border-gray-100 shadow-sm relative">
+                        <img src="${item.img}" class="w-16 h-20 object-cover bg-gray-50 mix-blend-multiply">
+                        <div class="flex-1">
+                            <p class="text-[9px] text-gray-400 uppercase font-bold">${item.brand}</p>
+                            <h4 class="font-serif text-sm text-kyta-dark leading-tight">${item.name}</h4>
+                            <p class="text-[10px] text-gray-500 my-1">Var: ${item.variant}</p>
+                            <p class="text-sm font-medium">$${item.price.toFixed(2)} <span class="text-xs text-gray-400">x ${item.qty}</span></p>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-gray-300 hover:text-red-500 absolute top-2 right-2 p-1">✕</button>
+                    </div>`;
+            });
+            badge.textContent = count;
+            totalEl.textContent = `$${total.toFixed(2)}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function toggleCart(forceOpen = false) {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-overlay');
+            if (forceOpen || drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        function checkoutWhatsApp() {
+            if(cart.length === 0) return;
+            let msg = `*NUEVA ORDEN - KYTA* 🛍️\n\n`;
+            let total = 0;
+            cart.forEach(i => {
+                msg += `📍 *${i.qty}x* ${i.name} [${i.variant}] - $${(i.price * i.qty).toFixed(2)}\n`;
+                total += i.price * i.qty;
+            });
+            msg += `\n*Total Estimado: $${total.toFixed(2)}*`;
+            window.open(`https://wa.me/50372076611?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // Init App
+        document.addEventListener('DOMContentLoaded', () => {
+            initSlider();
+            renderGrid(db.products);
+        });
+    </script>
+</body>
+</html>
